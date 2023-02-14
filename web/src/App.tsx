@@ -8,20 +8,31 @@ import PublishCard from "./components/PublishCard";
 import Modal from "./components/Modal";
 import axios from "axios";
 
-export interface Game {
+interface Game {
   id: string;
   title: string;
   bannerUrl: string;
-  _count: {
-    ads: number;
-  };
+  ads: number;
 }
 
 function App() {
   const [games, setGames] = useState<Game[]>([]);
 
   useEffect(() => {
-    axios("http://localhost:3333/games").then((response) => setGames(response.data));
+    axios("http://localhost:3000/games").then(async (response) => {
+      const g = [] as Game[]
+      for (const game of response.data) {
+        await axios(`http://localhost:3000/games/${game.id}/ads`).then((response) => {
+          g.push({
+            id: game.id,
+            title: game.title,
+            bannerUrl: game.bannerUrl,
+            ads: response.data.length,
+          })
+        })
+      }
+      setGames(g)
+    });
   }, []);
 
   //Kean slider
@@ -45,7 +56,7 @@ function App() {
               key={game.id}
               uri={game.bannerUrl}
               title={game.title}
-              ads={game._count.ads}
+              ads={game.ads}
             />
           );
         })}

@@ -1,6 +1,6 @@
 import * as Select from "@radix-ui/react-select";
 import { ArrowDown, ArrowUp } from "phosphor-react";
-import { Game } from "../../App";
+import { Game } from "../Modal";
 import SelectInput from "./SelectInput";
 
 interface Props {
@@ -24,7 +24,9 @@ const SelectModal = ({data}: Props) => {
           <Select.Viewport className="p-1">
             <Select.Group>
                 {/* Adicionar tudo */}
-                {data.map(game => {return <SelectInput key={game.id} value={game.id} textName={game.title} />})}
+                {data.map(game => {
+                  return <SelectInput key={game.id} value={game.id} textName={game.title} />
+                })}
             </Select.Group>
           </Select.Viewport>
           <Select.ScrollDownButton className="flex items-center justify-center h-6 bg-zin-700 cursor-default">

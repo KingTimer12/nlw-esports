@@ -6,44 +6,54 @@ import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { Check, GameController, ArrowDown, ArrowUp } from "phosphor-react";
 import FormInput from "../FormInput";
 import { useEffect, useState, FormEvent } from "react";
-import { Game } from "../../App";
 import SelectModal from "../SelectModal";
-import axios from 'axios'
+import axios from "axios";
+import { convertStringToMinutes } from "../../utils/convertString";
+
+export interface Game {
+  id: string;
+  title: string;
+}
 
 function Modal() {
   const [games, setGames] = useState<Game[]>([]);
   const [weekDays, setWeekDays] = useState<string[]>([]);
   const [useVoiceChannel, setUseVoiceChannel] = useState(false);
-  const [game, setGame] = useState('');
 
   useEffect(() => {
-    axios("http://localhost:3333/games").then((response) => setGames(response.data));
+    axios("http://localhost:3000/games").then((response) =>
+      setGames(response.data)
+    );
   }, []);
 
   const handleSubmited = async (event: FormEvent) => {
-    event.preventDefault()
+    event.preventDefault();
 
-    const formData = new FormData(event.target as HTMLFormElement)
-    const data = Object.fromEntries(formData)
+    const formData = new FormData(event.target as HTMLFormElement);
+    const data = Object.fromEntries(formData);
+
+    console.log(data)
 
     //Validação
-    
-    await axios.post(`http://localhost:3333/games/${game}/ads`, {
-      "name": data.nickname,
-      "yearsPlaying": Number(data.yearsPlaying),
-      "discord": data.discord,
-      "weekDays": weekDays,
-      "hourStart": data.hourStart,
-      "hourEnd": data.hourEnd,
-      "useVoiceChannel": useVoiceChannel
-    }).then(() => {
-      alert('Anúncio criado com sucesso')
-    }).catch((err) => {
-      console.error(err)
-      alert('Erro ao criar o anúncio')
-    })
 
-  }
+    await axios
+      .post(`http://localhost:3000/games/${data.game}/ads`, {
+        name: data.nickname,
+        yearsPlaying: Number(data.yearsPlaying),
+        discord: data.discord,
+        weekDays: weekDays.join(","),
+        hourStart: convertStringToMinutes(data.hourStart),
+        hourEnd: convertStringToMinutes(data.hourEnd),
+        useVoiceChannel: useVoiceChannel,
+      })
+      .then(() => {
+        alert("Anúncio criado com sucesso");
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("Erro ao criar o anúncio");
+      });
+  };
 
   return (
     <div>
@@ -58,9 +68,17 @@ function Modal() {
               <label className="font-semibold" htmlFor="game">
                 Qual o game?
               </label>
-              <Select.Root onValueChange={setGame}>
-                <SelectModal data={games} />
-              </Select.Root>
+              <select
+              name="game"
+                id="game"
+                className="bg-zinc-900 py-3 px-4 rounded text-sm placeholder:text-zinc-500 appearance-none"
+                defaultValue=""
+              >
+                <option disabled value="">
+                  Selecione o jogo que deseja jogar
+                </option>
+                {games.map((game) => <option key={game.id} value={game.id}>{game.title}</option>)}
+              </select>
             </div>
 
             <div className="flex flex-col gap-2">
@@ -68,7 +86,7 @@ function Modal() {
                 Seu nickname
               </label>
               <FormInput
-              name="nickname"
+                name="nickname"
                 id="nickname"
                 placeholder="Como te chamam dentro do game?"
               />
@@ -80,7 +98,7 @@ function Modal() {
                   Joga há quantos anos?
                 </label>
                 <FormInput
-                name="yearsPlaying"
+                  name="yearsPlaying"
                   id="yearsPlaying"
                   type="number"
                   placeholder="Tudo bem ser ZERO"
@@ -90,7 +108,11 @@ function Modal() {
                 <label className="font-semibold" htmlFor="discord">
                   Qual seu Discord?
                 </label>
-                <FormInput name="discord" id="discord" placeholder="Usuario#0000" />
+                <FormInput
+                  name="discord"
+                  id="discord"
+                  placeholder="Usuario#0000"
+                />
               </div>
             </div>
 
@@ -108,49 +130,63 @@ function Modal() {
                   <ToggleGroup.Item
                     value="0"
                     title="Domingo"
-                    className={`w-8 h-8 rounded ${weekDays.includes('0') ? 'bg-violet-500' : 'bg-zinc-900'}`}
+                    className={`w-8 h-8 rounded ${
+                      weekDays.includes("0") ? "bg-violet-500" : "bg-zinc-900"
+                    }`}
                   >
                     D
                   </ToggleGroup.Item>
                   <ToggleGroup.Item
                     value="1"
                     title="Segunda"
-                    className={`w-8 h-8 rounded ${weekDays.includes('1') ? 'bg-violet-500' : 'bg-zinc-900'}`}
+                    className={`w-8 h-8 rounded ${
+                      weekDays.includes("1") ? "bg-violet-500" : "bg-zinc-900"
+                    }`}
                   >
                     S
                   </ToggleGroup.Item>
                   <ToggleGroup.Item
                     value="2"
                     title="Terça"
-                    className={`w-8 h-8 rounded ${weekDays.includes('2') ? 'bg-violet-500' : 'bg-zinc-900'}`}
+                    className={`w-8 h-8 rounded ${
+                      weekDays.includes("2") ? "bg-violet-500" : "bg-zinc-900"
+                    }`}
                   >
                     T
                   </ToggleGroup.Item>
                   <ToggleGroup.Item
                     value="3"
                     title="Quarta"
-                    className={`w-8 h-8 rounded ${weekDays.includes('3') ? 'bg-violet-500' : 'bg-zinc-900'}`}
+                    className={`w-8 h-8 rounded ${
+                      weekDays.includes("3") ? "bg-violet-500" : "bg-zinc-900"
+                    }`}
                   >
                     Q
                   </ToggleGroup.Item>
                   <ToggleGroup.Item
                     value="4"
                     title="Quinta"
-                    className={`w-8 h-8 rounded ${weekDays.includes('4') ? 'bg-violet-500' : 'bg-zinc-900'}`}
+                    className={`w-8 h-8 rounded ${
+                      weekDays.includes("4") ? "bg-violet-500" : "bg-zinc-900"
+                    }`}
                   >
                     Q
                   </ToggleGroup.Item>
                   <ToggleGroup.Item
                     value="5"
                     title="Sexta"
-                    className={`w-8 h-8 rounded ${weekDays.includes('5') ? 'bg-violet-500' : 'bg-zinc-900'}`}
+                    className={`w-8 h-8 rounded ${
+                      weekDays.includes("5") ? "bg-violet-500" : "bg-zinc-900"
+                    }`}
                   >
                     S
                   </ToggleGroup.Item>
                   <ToggleGroup.Item
                     value="6"
                     title="Sábado"
-                    className={`w-8 h-8 rounded ${weekDays.includes('6') ? 'bg-violet-500' : 'bg-zinc-900'}`}
+                    className={`w-8 h-8 rounded ${
+                      weekDays.includes("6") ? "bg-violet-500" : "bg-zinc-900"
+                    }`}
                   >
                     S
                   </ToggleGroup.Item>
@@ -161,18 +197,32 @@ function Modal() {
                   Qual horário do dia?
                 </label>
                 <div className="grid grid-cols-2 gap-1">
-                  <FormInput name="hourStart" type="time" id="hourStart" placeholder="De" />
-                  <FormInput name="hourEnd" type="time" id="hourEnd" placeholder="Até" />
+                  <FormInput
+                    name="hourStart"
+                    type="time"
+                    id="hourStart"
+                    placeholder="De"
+                  />
+                  <FormInput
+                    name="hourEnd"
+                    type="time"
+                    id="hourEnd"
+                    placeholder="Até"
+                  />
                 </div>
               </div>
             </div>
 
             <label className="mt-2 flex gap-2 text-sm items-center">
-              <Checkbox.Root checked={useVoiceChannel} onCheckedChange={(checked) => {
-                if (checked != 'indeterminate' && checked as boolean) {
-                  setUseVoiceChannel(checked)
-                }
-              }} className="w-6 h-6 rounded bg-zinc-900">
+              <Checkbox.Root
+                checked={useVoiceChannel}
+                onCheckedChange={(checked) => {
+                  if (checked != "indeterminate" && (checked as boolean)) {
+                    setUseVoiceChannel(checked);
+                  }
+                }}
+                className="w-6 h-6 rounded bg-zinc-900"
+              >
                 <Checkbox.Indicator>
                   <Check className="text-emerald-400 p-1" size={24} />
                 </Checkbox.Indicator>

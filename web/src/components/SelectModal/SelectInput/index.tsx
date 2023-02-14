@@ -1,4 +1,3 @@
-import React from "react";
 import * as Select from "@radix-ui/react-select";
 import { CheckSquare } from "phosphor-react";
 
@@ -8,6 +7,7 @@ interface Props {
 }
 
 const SelectInput = ({value, textName}: Props) => {
+
   return (
     <Select.Item
       value={value}
